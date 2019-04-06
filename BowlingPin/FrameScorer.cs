@@ -15,113 +15,115 @@ namespace BowlingPin
             return new Random().Next(0, remainingPins + 1);
         }
 
-        public void ScoreBowl()
+        public void EnterScores(int score)
         {
-            var game = new FrameScorer();
-
-            while (game.CurrentFrame < 10)
-            {
-                game.Bowl(game);
-                game.StrikeAdder(game);
-                game.SpareAdder(game);
-                game.CurrentFrame += 1;
-                game.RemainingPins = 10;
-                game.FinalFramer(game);
-            }
-            game.ScoreDisplayer(game);
         }
 
-        public void Bowl(FrameScorer game)
+        public void ScoreBowl()
         {
-            var bowl1 = game.GenerateBowl(game.RemainingPins);
-            game.RemainingPins -= bowl1;
-            var frame = new FrameScore() { Bowl1 = bowl1 };
-            if (game.RemainingPins > 0)
+            while (CurrentFrame < 10)
             {
-                var bowl2 = game.GenerateBowl(game.RemainingPins);
+                Bowl();
+                StrikeAdder();
+                SpareAdder();
+                CurrentFrame += 1;
+                RemainingPins = 10;
+                FinalFramer();
+            }
+            ScoreDisplayer();
+        }
+
+        public void Bowl()
+        {
+            var bowl1 = GenerateBowl(RemainingPins);
+            RemainingPins -= bowl1;
+            var frame = new FrameScore() { Bowl1 = bowl1 };
+            if (RemainingPins > 0)
+            {
+                var bowl2 = GenerateBowl(RemainingPins);
                 frame.Bowl2 = bowl2;
-                game.RemainingPins -= bowl2;
-                if (game.RemainingPins == 0)
+                RemainingPins -= bowl2;
+                if (RemainingPins == 0)
                 {
                     frame.Spare = true;
                 }
                 else
                 {
-                    frame.TotalScore = 10 - game.RemainingPins;
+                    frame.TotalScore = 10 - RemainingPins;
                 }
             }
             else
             {
                 frame.Strike = true;
             }
-            game.FrameList.Add(frame);
+            FrameList.Add(frame);
         }
 
-        public void StrikeAdder(FrameScorer game)
+        public void StrikeAdder()
         {
-            if (game.FrameList.Count > 1 && game.FrameList[game.CurrentFrame - 1].Strike && !game.FrameList[game.CurrentFrame].Strike)
+            if (FrameList.Count > 1 && FrameList[CurrentFrame - 1].Strike && !FrameList[CurrentFrame].Strike)
             {
-                game.FrameList[game.CurrentFrame - 1].TotalScore = 20 - game.RemainingPins;
+                FrameList[CurrentFrame - 1].TotalScore = 20 - RemainingPins;
             }
-            if (game.FrameList.Count > 2 && game.FrameList[game.CurrentFrame - 2].Strike && game.FrameList[game.CurrentFrame - 1].Strike)
+            if (FrameList.Count > 2 && FrameList[CurrentFrame - 2].Strike && FrameList[CurrentFrame - 1].Strike)
             {
-                game.FrameList[game.CurrentFrame - 2].TotalScore = 30 - game.RemainingPins;
-            }
-        }
-
-        public void SpareAdder(FrameScorer game)
-        {
-            if (game.FrameList.Count > 1 && game.FrameList[game.CurrentFrame - 1].Spare)
-            {
-                game.FrameList[game.CurrentFrame - 1].TotalScore = 10 + game.FrameList[game.CurrentFrame].Bowl1;
+                FrameList[CurrentFrame - 2].TotalScore = 30 - RemainingPins;
             }
         }
 
-        public void FinalFramer(FrameScorer game)
+        public void SpareAdder()
         {
-            if (game.CurrentFrame == 10)
+            if (FrameList.Count > 1 && FrameList[CurrentFrame - 1].Spare)
             {
-                if (game.FrameList[9].Spare)
+                FrameList[CurrentFrame - 1].TotalScore = 10 + FrameList[CurrentFrame].Bowl1;
+            }
+        }
+
+        public void FinalFramer()
+        {
+            if (CurrentFrame == 10)
+            {
+                if (FrameList[9].Spare)
                 {
-                    game.FrameList[9].TotalScore = 20 - game.GenerateBowl(game.RemainingPins);
+                    FrameList[9].TotalScore = 20 - GenerateBowl(RemainingPins);
                 }
-                if (game.FrameList[9].Strike)
+                if (FrameList[9].Strike)
                 {
-                    var finalRolls = game.GenerateBowl(game.RemainingPins);
-                    game.RemainingPins -= finalRolls;
-                    if (game.RemainingPins > 0)
+                    var finalRolls = GenerateBowl(RemainingPins);
+                    RemainingPins -= finalRolls;
+                    if (RemainingPins > 0)
                     {
-                        finalRolls += game.GenerateBowl(game.RemainingPins);
+                        finalRolls += GenerateBowl(RemainingPins);
                     }
                     else
                     {
-                        finalRolls += game.GenerateBowl(10);
+                        finalRolls += GenerateBowl(10);
                     }
-                    game.FrameList[9].TotalScore = 10 + finalRolls;
+                    FrameList[9].TotalScore = 10 + finalRolls;
                 }
             }
         }
 
-        public int Totalizer(FrameScorer game)
+        public int Totalizer()
         {
             var total = 0;
-            foreach(FrameScore frame in game.FrameList)
+            foreach(FrameScore frame in FrameList)
             {
                 total += frame.TotalScore;
             }
             return total;
         }
 
-        public void ScoreDisplayer(FrameScorer game)
+        public void ScoreDisplayer()
         {
             var frameCounter = 0;
-            foreach (FrameScore frame in game.FrameList)
+            foreach (FrameScore frame in FrameList)
             {
                 frameCounter++;
                 Console.WriteLine($"Frame {frameCounter}: {frame.TotalScore}--{frame.Bowl1}--" +
                     $"{(frame.Strike || frame.Spare ? (frame.Strike ? "X" : "/") : $"{frame.Bowl2}")}");
             }
-            Console.WriteLine($"Total game score: {game.Totalizer(game)}");
+            Console.WriteLine($"Total  score: {Totalizer()}");
         }
     }
 }
