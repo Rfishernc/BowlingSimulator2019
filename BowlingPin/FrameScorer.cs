@@ -18,32 +18,10 @@ namespace BowlingPin
         public void ScoreBowl()
         {
             var game = new FrameScorer();
-            
+
             while (game.CurrentFrame < 10)
             {
-                var bowl1 = game.GenerateBowl(game.RemainingPins);
-                game.RemainingPins -= bowl1;
-                var frame = new FrameScore() { Bowl1 = bowl1 };
-                if (game.RemainingPins > 0)
-                {
-                    var bowl2 = game.GenerateBowl(game.RemainingPins);
-                    frame.Bowl2 = bowl2;
-                    game.RemainingPins -= bowl2;
-                    if (game.RemainingPins == 0)
-                    {
-                        frame.Spare = true;
-                    }
-                    else
-                    {
-                        frame.TotalScore = 10 - game.RemainingPins;
-                    }
-                }
-                else
-                {
-                    frame.Strike = true;
-                }
-                game.FrameList.Add(frame);
-                
+                game.Bowl(game);
                 game.StrikeAdder(game);
                 game.SpareAdder(game);
                 game.CurrentFrame += 1;
@@ -51,6 +29,32 @@ namespace BowlingPin
                 game.FinalFramer(game);
             }
             game.ScoreDisplayer(game);
+        }
+
+        public void Bowl(FrameScorer game)
+        {
+            var bowl1 = game.GenerateBowl(game.RemainingPins);
+            game.RemainingPins -= bowl1;
+            var frame = new FrameScore() { Bowl1 = bowl1 };
+            if (game.RemainingPins > 0)
+            {
+                var bowl2 = game.GenerateBowl(game.RemainingPins);
+                frame.Bowl2 = bowl2;
+                game.RemainingPins -= bowl2;
+                if (game.RemainingPins == 0)
+                {
+                    frame.Spare = true;
+                }
+                else
+                {
+                    frame.TotalScore = 10 - game.RemainingPins;
+                }
+            }
+            else
+            {
+                frame.Strike = true;
+            }
+            game.FrameList.Add(frame);
         }
 
         public void StrikeAdder(FrameScorer game)
