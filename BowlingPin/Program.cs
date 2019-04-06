@@ -6,7 +6,9 @@ namespace BowlingPin
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            var newGame = new FrameScorer();
+            newGame.ScoreBowl();
+            Console.ReadLine();
         }
     }
 }
